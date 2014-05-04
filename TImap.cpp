@@ -29,7 +29,21 @@ bool TImap::login (const QString& username, const QString& password)
 
    return true;
 
-
-
-
 }
+
+bool TImap::getFoldersList()
+{
+   QString cmd = QString("%1 LIST imap.mail.ru *\r\n").arg(IMAP_TAG);
+
+   socket.write(cmd.toLatin1());
+   if (!socket.waitForReadyRead())
+       return (false);
+
+qDebug() << socket.readAll().data();
+
+return (true);
+}
+
+
+
+

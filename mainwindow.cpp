@@ -19,11 +19,18 @@ MainWindow::MainWindow(QWidget *parent) :
     if(!imap.login(username,  pass))
         qDebug() << "Not loged";
 
+    if(!imap.getFoldersList())
+        qDebug() << "Not get folders list";
 
-    qDebug() << socket.readAll().data();
 
-    socket.write("IMAP4rev1 LIST imap.mail.ru %\r\n");
-    socket.waitForReadyRead();
+//----------------------------------------------------------------//
+
+
+QSslSocket socket;
+    //qDebug() << socket.readAll().data();
+
+    //socket.write("IMAP4rev1 LIST imap.mail.ru %\r\n");
+    //socket.waitForReadyRead();
 
     // qDebug() << socket.readAll().data();
 
