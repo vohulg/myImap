@@ -22,10 +22,9 @@ bool TImap::connectToHost( const QString& host, quint16 port)
 bool TImap::login (const QString& username, const QString& password)
 {
    QString cmd = QString("%1 LOGIN %2 %3\r\n").arg(IMAP_TAG).arg(username).arg(password);
-  cmd = "IMAP4rev1 LOGIN testov-79@mail.ru testtest\r\n";
 
    socket.write(cmd.toLatin1());
-   if (!socket.waitForEncrypted())
+   if (!socket.waitForReadyRead())
        return (false);
 
    return true;

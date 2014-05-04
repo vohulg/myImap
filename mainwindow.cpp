@@ -20,13 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Not loged";
 
 
-
-     QSslSocket socket;
-    socket.write("IMAP4rev1 LOGIN testov-79@mail.ru testtest\r\n");
-    if (!socket.waitForReadyRead())
-        qDebug() << socket.errorString();
-
-
     qDebug() << socket.readAll().data();
 
     socket.write("IMAP4rev1 LIST imap.mail.ru %\r\n");
