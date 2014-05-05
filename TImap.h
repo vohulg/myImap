@@ -15,7 +15,9 @@ public:
     TImap();
     bool connectToHost(const QString& host ,quint16 port) ;
     bool login (const QString& username, const QString& password);
-
+    bool getFoldersList();
+    bool getMessages(const QString& folder = "INBOX");
+    bool checkFolder();
 
 private:
     QSslSocket socket;
