@@ -22,7 +22,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    //QTcpSocket *socket;
+
 };
 
 #endif // MAINWINDOW_H

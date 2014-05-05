@@ -17,6 +17,7 @@ public:
     bool login (const QString& username, const QString& password);
     bool getFoldersList();
     bool getMessages(const QString& folder = "INBOX");
+    bool fetch (int messageId);
     bool checkFolder();
 
 private:
