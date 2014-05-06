@@ -72,19 +72,19 @@ bool TImap::getMessages(const QString& folder)
 
 
      //----------выводит номера сообщений-----------------------------------------//
-/*
-     cmd = QString("%1 SEARCH UNSEEN\r\n").arg(IMAP_TAG);
+
+     cmd = QString("%1 SEARCH ALL\r\n").arg(IMAP_TAG);
      socket.write(cmd.toLatin1());
 
      if (!socket.waitForReadyRead())
               return (false);
 
       qDebug() << socket.readAll().data();
-      */
+
 
       //---------------------------------------------------//
 
-      fetch(9);
+      fetch(1);
       return true;
 
 
@@ -92,12 +92,17 @@ bool TImap::getMessages(const QString& folder)
 
 bool TImap::fetch (int messageId)
 {
-    QString cmd = QString("%1 FETCH %2 RFC822.HEADER\r\n").arg(IMAP_TAG).arg(messageId);
+    QString cmd = QString("%1 FETCH %2 BODY\r\n").arg(IMAP_TAG).arg(messageId);
+    //QString cmd = QString("%1 FETCH 1,2,3,4,5,6,7,8,9 full\r\n").arg(IMAP_TAG);
+
     socket.write(cmd.toLatin1());
     if (!socket.waitForReadyRead())
         return (false);
 
-     qDebug() << "---------fetch----------\n" << socket.readAll().data();
+    // qDebug() << "---------fetch----------\n" << socket.readAll().data();
+
+     for (int x = 0; x < 10; x++)
+        qDebug() << socket.readLine().data();
 
 }
 
