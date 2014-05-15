@@ -6,6 +6,7 @@
 #include <QString>
 #include <QRegExp>
 #include <QStringList>
+#include <QFile>
 
 #define IMAP_TAG        "IMAP4rev1"
 
@@ -23,6 +24,9 @@ public:
 private:
     QSslSocket socket;
     QStringList folders;
+    QFile file;
+
+
 };
 
 #endif // TIMAP_H

@@ -2,6 +2,9 @@
 
 TImap::TImap()
 {
+    file.setFileName("imap-letter.EML");
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        qDebug() << "File not created";
 }
 
 bool TImap::connectToHost( const QString& host, quint16 port)
@@ -81,28 +84,79 @@ bool TImap::getMessages(const QString& folder)
 
       qDebug() << socket.readAll().data();
 
-
-      //---------------------------------------------------//
+     //---------------------------------------------------//
 
       fetch(1);
       return true;
-
-
 }
 
 bool TImap::fetch (int messageId)
 {
-    QString cmd = QString("%1 FETCH %2 BODY\r\n").arg(IMAP_TAG).arg(messageId);
-    //QString cmd = QString("%1 FETCH 1,2,3,4,5,6,7,8,9 full\r\n").arg(IMAP_TAG);
+    // RFC822.HEADER - получение всех заголовков
+    //QString cmd = QString("%1 FETCH %2 BODY[TEXT]\r\n").arg(IMAP_TAG).arg(messageId);
+    //QString cmd = QString("%1 FETCH %2 RFC822.HEADER\r\n").arg(IMAP_TAG).arg(messageId);
+    QString cmd = QString("%1 FETCH %2 bodystructure\r\n").arg(IMAP_TAG).arg(messageId);
+
+
 
     socket.write(cmd.toLatin1());
     if (!socket.waitForReadyRead())
         return (false);
 
+    //qDebug() << socket.readAll() << "====================";
+
+
+    QByteArray line = socket.readLine().trimmed();
+    while (socket.canReadLine())
+    {
+        /*
+        if (line.startsWith("*") || line.startsWith(")") || line.startsWith("\n") )
+        {
+            line = socket.readLine().trimmed();
+            continue;
+        }
+        */
+        file.write(line);
+        line = socket.readLine().trimmed();
+        file.write("\n");
+    }
+
+
+    //---------- запись основного тела письма---------------------------------//
+
+    cmd = QString("%1 FETCH %2 BODY[2.2]\r\n").arg(IMAP_TAG).arg(messageId);
+
+    socket.write(cmd.toLatin1());
+    if (!socket.waitForReadyRead())
+        return (false);
+
+    line = socket.readLine().trimmed();
+    while (socket.canReadLine())
+    {
+        if (    line.startsWith("*")
+                || line.startsWith(")")
+                || line == ("")
+                || line.startsWith("This is a multi-part message"))
+        {
+            line = socket.readLine().trimmed();
+            continue;
+        }
+        file.write(line);
+        line = socket.readLine().trimmed();
+        file.write("\n");
+    }
+
+    //--------------------------------------------
+
+
+   file.close();
+
+
+
+
     // qDebug() << "---------fetch----------\n" << socket.readAll().data();
 
-     for (int x = 0; x < 10; x++)
-        qDebug() << socket.readLine().data();
+
 
 }
 
