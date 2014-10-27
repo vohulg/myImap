@@ -14,6 +14,9 @@ bool TImap::connectToHost( const QString& host, quint16 port)
     if (!socket.waitForEncrypted())
         return (false);
 
+    if (!socket.waitForReadyRead())
+        return (false);
+
     QByteArray response =  socket.readLine();
     if (!response.startsWith("* OK"))
         return (false);
@@ -30,6 +33,8 @@ bool TImap::login (const QString& username, const QString& password)
    if (!socket.waitForReadyRead())
        return (false);
 
+    QByteArray response =  socket.readLine();
+
    return true;
 
 }
@@ -45,6 +50,8 @@ bool TImap::getFoldersList()
    QRegExp rx("\\((.*)\\)\\s+\"(.*)\"\\s+\"(.*)\"");
    QByteArray line;
    QString endString = QString("%1 OK LIST done\r\n").arg(IMAP_TAG);
+
+   //qDebug() << socket.readAll();
 
       while(1)
       {
@@ -76,7 +83,7 @@ bool TImap::getMessages(const QString& folder)
 
      //----------выводит номера сообщений-----------------------------------------//
 
-     cmd = QString("%1 SEARCH ALL\r\n").arg(IMAP_TAG);
+     cmd = QString("%1 UID SEARCH UID 0:*\r\n").arg(IMAP_TAG);
      socket.write(cmd.toLatin1());
 
      if (!socket.waitForReadyRead())
@@ -86,24 +93,32 @@ bool TImap::getMessages(const QString& folder)
 
      //---------------------------------------------------//
 
-      fetch(1);
+
+      fetch(70);
       return true;
 }
 
 bool TImap::fetch (int messageId)
 {
     // RFC822.HEADER - получение всех заголовков
-    //QString cmd = QString("%1 FETCH %2 BODY[TEXT]\r\n").arg(IMAP_TAG).arg(messageId);
-    //QString cmd = QString("%1 FETCH %2 RFC822.HEADER\r\n").arg(IMAP_TAG).arg(messageId);
-    QString cmd = QString("%1 FETCH %2 bodystructure\r\n").arg(IMAP_TAG).arg(messageId);
+   // QString cmd = QString("%1 UID FETCH %2 BODY[TEXT]\r\n").arg(IMAP_TAG).arg(messageId);
+    QString cmd = QString("%1 UID FETCH %2 RFC822.HEADER\r\n").arg(IMAP_TAG).arg(messageId);
+    //QString cmd = QString("%1 UID FETCH %2 BODY.PEEK[1]\r\n").arg(IMAP_TAG).arg(messageId);
 
+
+    //QString cmd = QString("%1 UID FETCH %2 BODYSTRUCTURE\r\n").arg(IMAP_TAG).arg(messageId);
+
+
+   // QString cmd = QString("UID FETCH %2 FULL\r\n").arg(messageId);
+
+    qDebug() << "cmd:" << cmd ;
 
 
     socket.write(cmd.toLatin1());
     if (!socket.waitForReadyRead())
         return (false);
 
-    //qDebug() << socket.readAll() << "====================";
+    qDebug()<< "===========================" << socket.readAll() << "====================";
 
 
     QByteArray line = socket.readLine().trimmed();
@@ -118,7 +133,7 @@ bool TImap::fetch (int messageId)
         */
         file.write(line);
         line = socket.readLine().trimmed();
-        file.write("\n");
+        //file.write("\n");
     }
 
 
