@@ -25,6 +25,7 @@ private:
     QSslSocket socket;
     QStringList folders;
     QFile file;
+    bool parseHeaders();
 
 
 };

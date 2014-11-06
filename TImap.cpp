@@ -118,7 +118,12 @@ bool TImap::fetch (int messageId)
     if (!socket.waitForReadyRead())
         return (false);
 
-    qDebug()<< "===========================" << socket.readAll() << "====================";
+    //QByteArray headers = socket.readAll();
+   qDebug() << socket.readAll();
+
+    parseHeaders();
+    return true;
+
 
 
     QByteArray line = socket.readLine().trimmed();
@@ -162,16 +167,33 @@ bool TImap::fetch (int messageId)
     }
 
     //--------------------------------------------
-
-
    file.close();
-
-
-
-
     // qDebug() << "---------fetch----------\n" << socket.readAll().data();
 
+}
 
+bool  TImap::parseHeaders()
+{
+    QByteArray line = socket.readLine().trimmed();
+    while (socket.canReadLine())
+    {
+
+        if (line.startsWith("*") )
+        {
+            line = socket.readLine().trimmed();
+            continue;
+        }
+
+        QString res;
+        QRegExp rx("(w*)\:(.*)");
+         if (rx.indexIn(line) != -1)
+             res = rx.cap(0);
+
+
+
+        line = socket.readLine().trimmed();
+
+    }
 
 }
 
